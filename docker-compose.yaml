@@ -1,0 +1,52 @@
+version: "3.5"
+
+services:
+  doh-server:
+    image: satishweb/doh-server
+    environment:
+      DEBUG: "1"
+      UPSTREAM_DNS_SERVER: "udp:coredns:53"
+      DOH_HTTP_PREFIX: "/dns-query"
+      DOH_SERVER_LISTEN: ":8053"
+      DOH_SERVER_TIMEOUT: "10"
+      DOH_SERVER_TRIES: "3"
+      DOH_SERVER_VERBOSE: "false"
+    ports:
+      - "127.0.0.1:8053:8053"
+    depends_on:
+      - smartdns
+      - coredns
+    restart: always
+    networks:
+      default:
+        ipv4_address: 10.53.53.52
+
+  coredns:
+    image: registry.cn-hongkong.aliyuncs.com/lyekumchew/coredns
+    restart: always
+    ports: 
+      - "10053:53/udp"
+    volumes:
+      - ./coredns/Corefile:/Corefile
+    networks:
+      default:
+        ipv4_address: 10.53.53.53
+
+  smartdns:
+    image: registry.cn-shenzhen.aliyuncs.com/lyekumchew/smartdns
+    volumes:
+      - ./smartdns/conf/:/etc/smartdns/
+      - ./smartdns/logs/:/var/log/smartdns/
+    restart: always
+    networks:
+      default:
+        ipv4_address: 10.53.53.54
+
+
+networks:
+  default:
+    driver_opts:
+      com.docker.network.bridge.name: dns
+    ipam:
+      config:
+        - subnet: 10.53.53.50/28

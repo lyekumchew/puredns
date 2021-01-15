@@ -1,0 +1,21 @@
+. {
+    #debug
+    #loop
+    any
+    log . {
+        class denial
+        class error
+    }
+    #log . {combined}
+    #reload 2s
+    errors
+
+    china-list {
+        ChinaListFile china-list.txt
+        DomesticDNS 223.5.5.5:53
+        ForeignDNS 10.53.53.54:53
+        ListRefreshTime 12
+        #PrivateAddressECS 223.5.5.5
+        EnableECSProxy 1
+    }
+}
